@@ -1,0 +1,39 @@
+version: '3.8'
+
+services:
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    volumes:
+      - /app/node_modules
+    depends_on:
+      - rust-backend
+
+  rust-backend:
+    build:
+      context: ./rust-backend
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    volumes:
+      - rust-backend-data:/app/data
+    depends_on:
+      - python-backend
+
+  python-backend:
+    build:
+      context: ./python-backend
+      dockerfile: Dockerfile
+    runtime: nvidia
+    environment:
+      - NVIDIA_VISIBLE_DEVICES=all
+    ports:
+      - "8001:8001"
+      - "5000:5000"
+
+volumes:
+  rust-backend-data:
+    driver: local
